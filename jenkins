@@ -1,27 +1,33 @@
-1 pipeline {
-2     agent any
-3 
-4     stages {
-5         stage('Checkout') {
-6             steps {
-7                 // Check out the code from your GitHub repository
-8                 checkout([$class: 'GitSCM', 
-9                     branches: [[name: 'main']], 
-10                    doGenerateSubmoduleConfigurations: false, 
-11                    extensions: [], 
-12                    submoduleCfg: [], 
-13                    userRemoteConfigs: [[url: 'https://github.com/neetipatel11/OnlineFoodService.git']]
-14                ])
-15            }
-16        }
-17
-18        stage('Deploy to Apache') {
-19            steps {
-20                // Copy the code to the Apache document root directory
-21                bat script: '''
-22                    xcopy /s /e /y "D:\\projectfood" "C:\\Apache24\\htdocs"
-23                '''
-24            }
-25        }
-26    }
-27 }
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout your Git repository
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/neetipatel11/OnlineFoodService.git']]])
+            }
+        }
+
+        stage('Copy Files') {
+            steps {
+                // Use the bat step to run xcopy
+                bat(script: 'xcopy /s /e /y "D:\\projectfood" "C:\\Apache24\\htdocs"')
+            }
+        }
+
+        // Add more stages as needed for your pipeline
+    }
+
+    post {
+        success {
+            // Define steps to execute on success
+            echo 'The build was successful!'
+        }
+        failure {
+            // Define steps to execute on failure
+            echo 'The build failed!'
+        }
+    }
+}
